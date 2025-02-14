@@ -38,16 +38,29 @@ export function run(input) {
   let totalWeight = 0;
   let operations = [];
 
+  const iceCoolerId = "8272060711000";
+  const iceCoolerIdID = "gid://shopify/Product/8272060711000";
+  
+  const giftBoxId = "8272056385624";
+  const giftBoxIdID = "gid://shopify/Product/8272056385624";
+
   // Calcular el peso total del carrito en OZ
   input.cart.lines.forEach(line => {
     const { merchandise } = line;
+
+    // Excluir Ice Cooler y Gift Box del cálculo de peso
+    if (merchandise?.product?.id === iceCoolerId || 
+      merchandise?.product?.id === iceCoolerIdID || 
+      merchandise?.product?.id === giftBoxId || 
+      merchandise?.product?.id === giftBoxIdID) {
+      return;
+    }
+
     if (merchandise?.weight && merchandise?.weightUnit) {
       const convertedWeight = convertToPounds(merchandise.weight, merchandise.weightUnit);
       totalWeight += convertedWeight * line.quantity;
     }
   });
-
-  console.log('Total Weight in lb:', totalWeight);
 
   input.cart.lines.forEach(line => {
     const operation = optionallyBuildUpdateOperation(line, totalWeight);
@@ -79,7 +92,7 @@ function optionallyBuildUpdateOperation({ id: cartLineId, merchandise }, totalWe
   }
 
   if (merchandise?.product?.id == giftBoxId || merchandise?.product?.id == giftBoxIdID) {
-    newPrice = totalWeight < 13 ? 8.00 : 12.00;
+    newPrice = totalWeight < 8 ? 12.00 : 14.00;
   }
 
   if (newPrice > 0) {
